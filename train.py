@@ -26,7 +26,7 @@ def _train(dataset_name: str, backbone_name: str, path_to_data_dir: str, path_to
 
     backbone = BackboneBase.from_name(backbone_name)(pretrained=True)
     model = Model(backbone, dataset.num_classes(), pooling_mode=Config.POOLING_MODE,
-                  anchor_ratios=Config.ANCHOR_RATIOS, anchor_sizes=Config.ANCHOR_SIZES,
+                  anchor_ratios=Config.ANCHOR_RATIOS, anchor_scales=Config.ANCHOR_SCALES,
                   rpn_pre_nms_top_n=Config.RPN_PRE_NMS_TOP_N, rpn_post_nms_top_n=Config.RPN_POST_NMS_TOP_N).cuda()
     optimizer = optim.SGD(model.parameters(), lr=Config.LEARNING_RATE,
                           momentum=Config.MOMENTUM, weight_decay=Config.WEIGHT_DECAY)
@@ -59,10 +59,7 @@ def _train(dataset_name: str, backbone_name: str, path_to_data_dir: str, path_to
             forward_input = Model.ForwardInput.Train(image, gt_classes=labels, gt_bboxes=bboxes)
             forward_output: Model.ForwardOutput.Train = model.train().forward(forward_input)
 
-            anchor_objectness_loss = forward_output.anchor_objectness_loss
-            anchor_transformer_loss = forward_output.anchor_transformer_loss
-            proposal_class_loss = forward_output.proposal_class_loss
-            proposal_transformer_loss = forward_output.proposal_transformer_loss
+            anchor_objectness_loss, anchor_transformer_loss, proposal_class_loss, proposal_transformer_loss = forward_output
             loss = anchor_objectness_loss + anchor_transformer_loss + proposal_class_loss + proposal_transformer_loss
 
             optimizer.zero_grad()
@@ -109,7 +106,7 @@ if __name__ == '__main__':
         parser.add_argument('--image_min_side', type=float, help='default: {:g}'.format(Config.IMAGE_MIN_SIDE))
         parser.add_argument('--image_max_side', type=float, help='default: {:g}'.format(Config.IMAGE_MAX_SIDE))
         parser.add_argument('--anchor_ratios', type=str, help='default: "{!s}"'.format(Config.ANCHOR_RATIOS))
-        parser.add_argument('--anchor_sizes', type=str, help='default: "{!s}"'.format(Config.ANCHOR_SIZES))
+        parser.add_argument('--anchor_scales', type=str, help='default: "{!s}"'.format(Config.ANCHOR_SCALES))
         parser.add_argument('--pooling_mode', type=str, choices=ROIWrapper.OPTIONS, help='default: {.value:s}'.format(Config.POOLING_MODE))
         parser.add_argument('--rpn_pre_nms_top_n', type=int, help='default: {:d}'.format(Config.RPN_PRE_NMS_TOP_N))
         parser.add_argument('--rpn_post_nms_top_n', type=int, help='default: {:d}'.format(Config.RPN_POST_NMS_TOP_N))
@@ -134,7 +131,7 @@ if __name__ == '__main__':
         os.makedirs(path_to_checkpoints_dir)
 
         Config.setup(image_min_side=args.image_min_side, image_max_side=args.image_max_side,
-                     anchor_ratios=args.anchor_ratios, anchor_sizes=args.anchor_sizes, pooling_mode=args.pooling_mode,
+                     anchor_ratios=args.anchor_ratios, anchor_scales=args.anchor_scales, pooling_mode=args.pooling_mode,
                      rpn_pre_nms_top_n=args.rpn_pre_nms_top_n, rpn_post_nms_top_n=args.rpn_post_nms_top_n,
                      learning_rate=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay,
                      step_lr_size=args.step_lr_size, step_lr_gamma=args.step_lr_gamma,

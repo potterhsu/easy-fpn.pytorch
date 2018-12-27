@@ -1,27 +1,27 @@
-from typing import Tuple
+from typing import Tuple, Callable
 
 import torchvision
-from torch import nn
+from torch import nn, Tensor
 
 from backbone.base import Base
 
 
-class ResNet101(Base):
+class ResNet50(Base):
 
     def __init__(self, pretrained: bool):
         super().__init__(pretrained)
 
     def features(self) -> Tuple[Base.ConvLayers, Base.LateralLayers, Base.DealiasingLayers, int]:
-        resnet101 = torchvision.models.resnet101(pretrained=self._pretrained)
+        resnet50 = torchvision.models.resnet50(pretrained=self._pretrained)
 
-        # list(resnet101.children()) consists of following modules
+        # list(resnet50.children()) consists of following modules
         #   [0] = Conv2d, [1] = BatchNorm2d, [2] = ReLU, [3] = MaxPool2d,
         #   [4] = Sequential(Bottleneck...),
         #   [5] = Sequential(Bottleneck...),
         #   [6] = Sequential(Bottleneck...),
         #   [7] = Sequential(Bottleneck...),
         #   [8] = AvgPool2d, [9] = Linear
-        children = list(resnet101.children())
+        children = list(resnet50.children())
 
         conv1 = nn.Sequential(*children[:4])
         conv2 = children[4]

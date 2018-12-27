@@ -1,6 +1,6 @@
-# easy-faster-rcnn.pytorch
+# easy-fpn.pytorch
 
-An easy implementation of Faster R-CNN in PyTorch.
+An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch based on our [easy-faster-rcnn.pytorch](https://github.com/potterhsu/easy-faster-rcnn.pytorch) project.
 
 
 ## Demo
@@ -11,10 +11,10 @@ An easy implementation of Faster R-CNN in PyTorch.
 ## Features
 
 * Supports PyTorch 0.4.1
-* Supports `PASCAL VOC 2007` and `MS COCO 2017` datasets
-* Supports `VGG 16` and `ResNet 101` backbones (from official PyTorch model)
+* Supports `PASCAL VOC 2007` and (TODO) `MS COCO 2017` datasets
+* Supports `ResNet-18`, `ResNet-50` and `ResNet-101` backbones (from official PyTorch model)
 * Supports `ROI Pooling` and `ROI Align` pooling modes
-* Matches the performance reported by the original paper
+* (TODO) Matches the performance reported by the original paper
 * It's efficient with maintainable, readable and clean code
 
 
@@ -22,8 +22,8 @@ An easy implementation of Faster R-CNN in PyTorch.
 
 * PASCAL VOC 2007
 
-    * Train: 2007 trainval (5011 samples)
-    * Eval: 2007 test (4952 samples)
+    * Train: 2007 trainval (5011 images)
+    * Eval: 2007 test (4952 images)
 
     <table>
         <tr>
@@ -36,7 +36,67 @@ An easy implementation of Faster R-CNN in PyTorch.
             <th>image_min_side</th>
             <th>image_max_side</th>
             <th>anchor_ratios</th>
-            <th>anchor_sizes</th>
+            <th>anchor_scales</th>
+            <th>pooling_mode</th>
+            <th>train_pre_rpn_nms_top_n</th>
+            <th>train_post_rpn_nms_top_n</th>
+            <th>eval_pre_rpn_nms_top_n</th>
+            <th>eval_post_rpn_nms_top_n</th>
+            <th>learning_rate</th>
+            <th>momentum</th>
+            <th>weight_decay</th>
+            <th>step_lr_size</th>
+            <th>step_lr_gamma</th>
+            <th>num_steps_to_finish</th>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://drive.google.com/open?id=1Y3hipZECPCkywbHz1EBBISalz9bkwroP">
+                    Ours
+                </a>
+            </td>
+            <td>ResNet-101</td>
+            <td>GTX 1080 Ti</td>
+            <td>~ 3.3</td>
+            <td>~ 9.5</td>
+            <td>0.7627 / 0.7604 (60k / 70k)</td>
+            <td>800</td>
+            <td>1333</td>
+            <td>[(1, 2), (1, 1), (2, 1)]</td>
+            <td>[1]</td>
+            <td>align</td>
+            <td>12000</td>
+            <td>2000</td>
+            <td>6000</td>
+            <td>1000</td>
+            <td>0.001</td>
+            <td>0.9</td>
+            <td>0.0001</td>
+            <td>50000</td>
+            <td>0.1</td>
+            <td>70000</td>
+        </tr>
+    </table>
+
+    > Scroll to right for more configurations
+
+* MS COCO 2017
+
+    * Train: 2017 Train drops images without any objects (117266 images)
+    * Eval: 2017 Val drops images without any objects (4952 images)
+
+    <table>
+        <tr>
+            <th>Implementation</th>
+            <th>Backbone</th>
+            <th>GPU</th>
+            <th>Training Speed (FPS)</th>
+            <th>Inference Speed (FPS)</th>
+            <th>AP@[.5:.95]</th>
+            <th>image_min_side</th>
+            <th>image_max_side</th>
+            <th>anchor_ratios</th>
+            <th>anchor_scales</th>
             <th>pooling_mode</th>
             <th>train_pre_rpn_nms_top_n</th>
             <th>train_post_rpn_nms_top_n</th>
@@ -51,34 +111,11 @@ An easy implementation of Faster R-CNN in PyTorch.
         </tr>
         <tr>
             <td>Original Paper</td>
-            <td>VGG-16</td>
-            <td>Tesla K40</td>
-            <td>-</td>
-            <td>~ 5</td>
-            <td>0.699</td>
+            <td>ResNet-50</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td>chenyuntc/simple-faster-rcnn-pytorch</td>
-            <td>VGG-16</td>
-            <td>TITAN Xp</td>
-            <td>~ 6.5</td>
-            <td>~ 14.4</td>
-            <td>0.712</td>
+            <td>0.339</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
@@ -96,35 +133,12 @@ An easy implementation of Faster R-CNN in PyTorch.
             <td>-</td>
         </tr>
         <tr>
-            <td>ruotianluo/pytorch-faster-rcnn</td>
-            <td>VGG-16</td>
-            <td>TITAN Xp</td>
-            <td>-</td>
-            <td>-</td>
-            <td>0.7122</td>
+            <td>facebookresearch/Detectron</td>
+            <td>ResNet-50</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td>jwyang/faster-rcnn.pytorch</td>
-            <td>VGG-16</td>
-            <td>TITAN Xp</td>
-            <td>-</td>
-            <td>-</td>
-            <td>0.701</td>
+            <td>0.379</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
@@ -142,199 +156,39 @@ An easy implementation of Faster R-CNN in PyTorch.
             <td>-</td>
         </tr>
         <tr>
-            <td>
-                <a href="https://drive.google.com/open?id=1SKNPzSPFlLL_Y2XhRt6rA0d28Jh6Sy-4">
-                    Ours
-                </a>
-            </td>
-            <td>VGG-16</td>
+            <td>open-mmlab/mmdetection</td>
+            <td>ResNet-50</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>0.377</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td> Ours </td>
+            <td>ResNet-50</td>
             <td>GTX 1080 Ti</td>
-            <td>~ 6.9</td>
-            <td>~ 15.5</td>
-            <td>0.7013</td>
-            <td>600</td>
-            <td>1000</td>
-            <td>[(1, 2), (1, 1), (2, 1)]</td>
-            <td>[128, 256, 512]</td>
-            <td>align</td>
-            <td>12000</td>
-            <td>2000</td>
-            <td>6000</td>
-            <td>300</td>
-            <td>0.001</td>
-            <td>0.9</td>
-            <td>0.0005</td>
-            <td>50000</td>
-            <td>0.1</td>
-            <td>70000</td>
-        </tr>
-        <tr>
-            <td>ruotianluo/pytorch-faster-rcnn</td>
-            <td>ResNet-101</td>
-            <td>TITAN Xp</td>
-            <td>-</td>
-            <td>-</td>
-            <td>0.7576</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td>jwyang/faster-rcnn.pytorch</td>
-            <td>ResNet-101</td>
-            <td>TITAN Xp</td>
-            <td>-</td>
-            <td>-</td>
-            <td>0.752</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://drive.google.com/open?id=1HCefw8-4eCC5MVz07bhROjFBvt4SKRGD">
-                    Ours
-                </a>
-            </td>
-            <td>ResNet-101</td>
-            <td>GTX 1080 Ti</td>
-            <td>~ 5.6</td>
-            <td>~ 11.7</td>
-            <td>0.7538</td>
-            <td>600</td>
-            <td>1000</td>
-            <td>[(1, 2), (1, 1), (2, 1)]</td>
-            <td>[128, 256, 512]</td>
-            <td>align</td>
-            <td>12000</td>
-            <td>2000</td>
-            <td>6000</td>
-            <td>300</td>
-            <td>0.001</td>
-            <td>0.9</td>
-            <td>0.0005</td>
-            <td>50000</td>
-            <td>0.1</td>
-            <td>70000</td>
-        </tr>
-    </table>
-
-    > Scroll to right for more configurations
-
-* MS COCO 2017
-
-    * Train: 2017 Train = 2015 Train + 2015 Val - 2015 Val Sample 5k (117266 samples)
-    * Eval: 2017 Val = 2015 Val Sample 5k (formerly known as `minival`) (4952 samples)
-
-    <table>
-        <tr>
-            <th>Implementation</th>
-            <th>Backbone</th>
-            <th>GPU</th>
-            <th>Training Speed (FPS)</th>
-            <th>Inference Speed (FPS)</th>
-            <th>AP@[.5:.95]</th>
-            <th>image_min_side</th>
-            <th>image_max_side</th>
-            <th>anchor_ratios</th>
-            <th>anchor_sizes</th>
-            <th>pooling_mode</th>
-            <th>train_pre_rpn_nms_top_n</th>
-            <th>train_post_rpn_nms_top_n</th>
-            <th>eval_pre_rpn_nms_top_n</th>
-            <th>eval_post_rpn_nms_top_n</th>
-            <th>learning_rate</th>
-            <th>momentum</th>
-            <th>weight_decay</th>
-            <th>step_lr_size</th>
-            <th>step_lr_gamma</th>
-            <th>num_steps_to_finish</th>
-        </tr>
-        <tr>
-            <td>ruotianluo/pytorch-faster-rcnn</td>
-            <td>VGG-16</td>
-            <td>TITAN Xp</td>
-            <td>-</td>
-            <td>-</td>
-            <td>0.301</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td>jwyang/faster-rcnn.pytorch</td>
-            <td>VGG-16</td>
-            <td>TITAN Xp</td>
-            <td>-</td>
-            <td>-</td>
-            <td>0.292</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://drive.google.com/open?id=1_2X_Sn311f-hs9S0bVyMmeCsE9NppQHI">
-                    Ours
-                </a>
-            </td>
-            <td>VGG-16</td>
-            <td>GTX 1080 Ti</td>
-            <td>~ 3.9</td>
-            <td>~ 6.5</td>
-            <td>0.287</td>
+            <td>WIP</td>
+            <td>WIP</td>
+            <td>WIP</td>
             <td>800</td>
             <td>1333</td>
             <td>[(1, 2), (1, 1), (2, 1)]</td>
-            <td>[64, 128, 256, 512]</td>
+            <td>[1]</td>
             <td>align</td>
             <td>12000</td>
             <td>2000</td>
@@ -348,12 +202,12 @@ An easy implementation of Faster R-CNN in PyTorch.
             <td>1200000</td>
         </tr>
         <tr>
-            <td>ruotianluo/pytorch-faster-rcnn</td>
+            <td>Original Paper</td>
             <td>ResNet-101</td>
-            <td>TITAN Xp</td>
             <td>-</td>
             <td>-</td>
-            <td>0.354</td>
+            <td>-</td>
+            <td>0.362</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
@@ -371,12 +225,12 @@ An easy implementation of Faster R-CNN in PyTorch.
             <td>-</td>
         </tr>
         <tr>
-            <td>jwyang/faster-rcnn.pytorch</td>
+            <td>facebookresearch/Detectron</td>
             <td>ResNet-101</td>
-            <td>TITAN Xp</td>
             <td>-</td>
             <td>-</td>
-            <td>0.370</td>
+            <td>-</td>
+            <td>0.398</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
@@ -394,47 +248,39 @@ An easy implementation of Faster R-CNN in PyTorch.
             <td>-</td>
         </tr>
         <tr>
-            <td>
-                <a href="https://drive.google.com/open?id=16VyI2GjLrf3uU_bhqvZpC4ZGpen0wS5d">
-                    Ours
-                </a>
-            </td>
+            <td>open-mmlab/mmdetection</td>
+            <td>ResNet-101</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>0.394</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td> Ours </td>
             <td>ResNet-101</td>
             <td>GTX 1080 Ti</td>
-            <td>~ 3.4</td>
-            <td>~ 5.4</td>
-            <td>0.352</td>
+            <td>WIP</td>
+            <td>WIP</td>
+            <td>WIP</td>
             <td>800</td>
             <td>1333</td>
             <td>[(1, 2), (1, 1), (2, 1)]</td>
-            <td>[64, 128, 256, 512]</td>
-            <td>align</td>
-            <td>12000</td>
-            <td>2000</td>
-            <td>6000</td>
-            <td>1000</td>
-            <td>0.001</td>
-            <td>0.9</td>
-            <td>0.0001</td>
-            <td>900000</td>
-            <td>0.1</td>
-            <td>1200000</td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://drive.google.com/open?id=15GsaYxwpo-4mWKxPIkW_C-GXeeKmNNoz">
-                    Ours
-                </a>
-            </td>
-            <td>ResNet-101</td>
-            <td>GTX 1080 Ti</td>
-            <td>~ 2.6</td>
-            <td>~ 3.6</td>
-            <td>0.358</td>
-            <td>800</td>
-            <td>1333</td>
-            <td>[(1, 2), (1, 1), (2, 1)]</td>
-            <td>[32, 64, 128, 256, 512]</td>
+            <td>[1]</td>
             <td>align</td>
             <td>12000</td>
             <td>2000</td>
@@ -582,6 +428,12 @@ An easy implementation of Faster R-CNN in PyTorch.
         ```
         > It's not necessary to be under project directory
 
+    1. If an error with message `pycocotools/_mask.c: No such file or directory` has occurred, please install `cython` and try again
+
+        ```
+        $ pip install cython
+        ```
+
     1. Copy `pycocotools` into project
 
         ```
@@ -595,51 +447,36 @@ An easy implementation of Faster R-CNN in PyTorch.
 
     * To apply default configuration (see also `config/`)
         ```
-        $ python train.py -s=voc2007 -b=vgg16
-        ```
-
-    * To apply recommended configuration (see also `scripts/`)
-        ```
-        $ bash ./scripts/voc2007/vgg16/train.sh
+        $ python train.py -s=coco2017 -b=resnet101
         ```
 
     * To apply custom configuration (see also `train.py`)
         ```
-        $ python train.py -s=voc2007 -b=vgg16 --pooling_mode=pooling --weight_decay=0.0001
+        $ python train.py -s=coco2017 -b=resnet101 --pooling_mode=align
         ```
 
 1. Evaluate
 
     * To apply default configuration (see also `config/`)
         ```
-        $ python eval.py -s=voc2007 -b=vgg16 /path/to/checkpoint.pth
-        ```
-
-    * To apply recommended configuration (see also `scripts/`)
-        ```
-        $ bash ./scripts/voc2007/vgg16/eval.sh /path/to/checkpoint.pth
+        $ python eval.py -s=coco2017 -b=resnet101 /path/to/checkpoint.pth
         ```
 
     * To apply custom configuration (see also `eval.py`)
         ```
-        $ python eval.py -s=voc2007 -b=vgg16 --pooling_mode=pooling --rpn_post_nms_top_n=1000
+        $ python eval.py -s=coco2017 -b=resnet101 --pooling_mode=align /path/to/checkpoint.pth
         ```
 
 1. Infer
 
     * To apply default configuration (see also `config/`)
         ```
-        $ python infer.py -c=/path/to/checkpoint.pth -s=voc2007 -b=vgg16 /path/to/input/image.jpg /path/to/output/image.jpg
-        ```
-
-    * To apply recommended configuration (see also `scripts/`)
-        ```
-        $ bash ./scripts/voc2007/vgg16/infer.sh /path/to/checkpoint.pth /path/to/input/image.jpg /path/to/output/image.jpg
+        $ python infer.py -c=/path/to/checkpoint.pth -s=coco2017 -b=resnet101 /path/to/input/image.jpg /path/to/output/image.jpg
         ```
 
     * To apply custom configuration (see also `infer.py`)
         ```
-        $ python infer.py -c=/path/to/checkpoint.pth -s=voc2007 -b=vgg16 -p=0.9 /path/to/input/image.jpg /path/to/output/image.jpg
+        $ python infer.py -c=/path/to/checkpoint.pth -s=coco2017 -b=resnet101 -p=0.9 /path/to/input/image.jpg /path/to/output/image.jpg
         ```
 
 

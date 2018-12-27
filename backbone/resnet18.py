@@ -6,22 +6,22 @@ from torch import nn
 from backbone.base import Base
 
 
-class ResNet101(Base):
+class ResNet18(Base):
 
     def __init__(self, pretrained: bool):
         super().__init__(pretrained)
 
     def features(self) -> Tuple[Base.ConvLayers, Base.LateralLayers, Base.DealiasingLayers, int]:
-        resnet101 = torchvision.models.resnet101(pretrained=self._pretrained)
+        resnet18 = torchvision.models.resnet18(pretrained=self._pretrained)
 
-        # list(resnet101.children()) consists of following modules
+        # list(resnet18.children()) consists of following modules
         #   [0] = Conv2d, [1] = BatchNorm2d, [2] = ReLU, [3] = MaxPool2d,
         #   [4] = Sequential(Bottleneck...),
         #   [5] = Sequential(Bottleneck...),
         #   [6] = Sequential(Bottleneck...),
         #   [7] = Sequential(Bottleneck...),
         #   [8] = AvgPool2d, [9] = Linear
-        children = list(resnet101.children())
+        children = list(resnet18.children())
 
         conv1 = nn.Sequential(*children[:4])
         conv2 = children[4]
@@ -31,10 +31,10 @@ class ResNet101(Base):
 
         num_features_out = 256
 
-        lateral_c2 = nn.Conv2d(in_channels=256, out_channels=num_features_out, kernel_size=1)
-        lateral_c3 = nn.Conv2d(in_channels=512, out_channels=num_features_out, kernel_size=1)
-        lateral_c4 = nn.Conv2d(in_channels=1024, out_channels=num_features_out, kernel_size=1)
-        lateral_c5 = nn.Conv2d(in_channels=2048, out_channels=num_features_out, kernel_size=1)
+        lateral_c2 = nn.Conv2d(in_channels=64, out_channels=num_features_out, kernel_size=1)
+        lateral_c3 = nn.Conv2d(in_channels=128, out_channels=num_features_out, kernel_size=1)
+        lateral_c4 = nn.Conv2d(in_channels=256, out_channels=num_features_out, kernel_size=1)
+        lateral_c5 = nn.Conv2d(in_channels=512, out_channels=num_features_out, kernel_size=1)
 
         dealiasing_p2 = nn.Conv2d(in_channels=num_features_out, out_channels=num_features_out, kernel_size=3, padding=1)
         dealiasing_p3 = nn.Conv2d(in_channels=num_features_out, out_channels=num_features_out, kernel_size=3, padding=1)

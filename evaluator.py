@@ -28,9 +28,8 @@ class Evaluator(object):
                 forward_input = Model.ForwardInput.Eval(image)
                 forward_output: Model.ForwardOutput.Eval = model.eval().forward(forward_input)
 
-                detection_bboxes = forward_output.detection_bboxes / scale
-                detection_classes = forward_output.detection_classes
-                detection_probs = forward_output.detection_probs
+                detection_bboxes, detection_classes, detection_probs = forward_output
+                detection_bboxes /= scale
 
                 selected_indices = (detection_probs > 0.05).nonzero().view(-1)
                 detection_bboxes = detection_bboxes[selected_indices]

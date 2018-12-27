@@ -11,7 +11,7 @@ from nms.nms import NMS
 
 class RegionProposalNetwork(nn.Module):
 
-    def __init__(self, num_features_out: int, anchor_ratios: List[Tuple[int, int]], anchor_sizes: List[int], pre_nms_top_n: int, post_nms_top_n: int):
+    def __init__(self, num_features_out: int, anchor_ratios: List[Tuple[int, int]], anchor_scales: List[int], pre_nms_top_n: int, post_nms_top_n: int):
         super().__init__()
 
         self._features = nn.Sequential(
@@ -20,11 +20,11 @@ class RegionProposalNetwork(nn.Module):
         )
 
         self._anchor_ratios = anchor_ratios
-        self._anchor_sizes = anchor_sizes
+        self._anchor_scales = anchor_scales
 
         num_anchor_ratios = len(self._anchor_ratios)
-        num_anchor_sizes = len(self._anchor_sizes)
-        num_anchors = num_anchor_ratios * num_anchor_sizes
+        num_anchor_scales = len(self._anchor_scales)
+        num_anchors = num_anchor_ratios * num_anchor_scales
 
         self._pre_nms_top_n = pre_nms_top_n
         self._post_nms_top_n = post_nms_top_n
@@ -32,27 +32,22 @@ class RegionProposalNetwork(nn.Module):
         self._objectness = nn.Conv2d(in_channels=512, out_channels=num_anchors * 2, kernel_size=1)
         self._transformer = nn.Conv2d(in_channels=512, out_channels=num_anchors * 4, kernel_size=1)
 
-    def forward(self, features: Tensor, image_width: int, image_height: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
-        anchor_bboxes = self._generate_anchors(image_width, image_height, num_x_anchors=features.shape[3], num_y_anchors=features.shape[2]).cuda()
+    def forward(self, p2: Tensor, p3: Tensor, p4: Tensor, p5: Tensor, p6: Tensor, image_width: int, image_height: int) -> Tuple[Tensor, Tensor]:
+        objectnesses, transformers = [], []
 
-        features = self._features(features)
-        objectnesses = self._objectness(features)
-        transformers = self._transformer(features)
+        for p in [p2, p3, p4, p5, p6]:
+            features = self._features(p)
+            objectnesses.append(self._objectness(features).permute(0, 2, 3, 1).contiguous().view(-1, 2))
+            transformers.append(self._transformer(features).permute(0, 2, 3, 1).contiguous().view(-1, 4))
 
-        objectnesses = objectnesses.permute(0, 2, 3, 1).contiguous().view(-1, 2)
-        transformers = transformers.permute(0, 2, 3, 1).contiguous().view(-1, 4)
+        objectnesses = torch.cat(objectnesses, dim=0)
+        transformers = torch.cat(transformers, dim=0)
+        return objectnesses, transformers
 
-        proposal_bboxes = self._generate_proposals(anchor_bboxes, objectnesses, transformers, image_width, image_height)
+    def sample(self, anchor_bboxes: Tensor, gt_bboxes: Tensor, image_width: int, image_height: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+        sample_fg_indices = torch.arange(end=len(anchor_bboxes), dtype=torch.long)
+        sample_selected_indices = torch.arange(end=len(anchor_bboxes), dtype=torch.long)
 
-        proposal_bboxes = proposal_bboxes[:self._pre_nms_top_n]
-        kept_indices = NMS.suppress(proposal_bboxes, threshold=0.7)
-        proposal_bboxes = proposal_bboxes[kept_indices]
-        proposal_bboxes = proposal_bboxes[:self._post_nms_top_n]
-
-        return anchor_bboxes, objectnesses, transformers, proposal_bboxes
-
-    def sample(self, anchor_bboxes: Tensor, anchor_objectnesses: Tensor, anchor_transformers: Tensor, gt_bboxes: Tensor,
-               image_width: int, image_height: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
         anchor_bboxes = anchor_bboxes.cpu()
         gt_bboxes = gt_bboxes.cpu()
 
@@ -61,8 +56,8 @@ class RegionProposalNetwork(nn.Module):
         inside_indices = BBox.inside(anchor_bboxes, boundary.unsqueeze(dim=0)).squeeze().nonzero().view(-1)
 
         anchor_bboxes = anchor_bboxes[inside_indices]
-        anchor_objectnesses = anchor_objectnesses[inside_indices]
-        anchor_transformers = anchor_transformers[inside_indices]
+        sample_fg_indices = sample_fg_indices[inside_indices]
+        sample_selected_indices = sample_selected_indices[inside_indices]
 
         # find labels for each `anchor_bboxes`
         labels = torch.ones(len(anchor_bboxes), dtype=torch.long) * -1
@@ -90,10 +85,10 @@ class RegionProposalNetwork(nn.Module):
         gt_anchor_objectnesses = gt_anchor_objectnesses.cuda()
         gt_anchor_transformers = gt_anchor_transformers.cuda()
 
-        anchor_objectnesses = anchor_objectnesses[selected_indices]
-        anchor_transformers = anchor_transformers[fg_indices]
+        sample_fg_indices = sample_fg_indices[fg_indices]
+        sample_selected_indices = sample_selected_indices[selected_indices]
 
-        return anchor_objectnesses, anchor_transformers, gt_anchor_objectnesses, gt_anchor_transformers
+        return sample_fg_indices, sample_selected_indices, gt_anchor_objectnesses, gt_anchor_transformers
 
     def loss(self, anchor_objectnesses: Tensor, anchor_transformers: Tensor, gt_anchor_objectnesses: Tensor, gt_anchor_transformers: Tensor) -> Tuple[Tensor, Tensor]:
         cross_entropy = F.cross_entropy(input=anchor_objectnesses, target=gt_anchor_objectnesses)
@@ -104,27 +99,33 @@ class RegionProposalNetwork(nn.Module):
 
         return cross_entropy, smooth_l1_loss
 
-    def _generate_anchors(self, image_width: int, image_height: int, num_x_anchors: int, num_y_anchors: int) -> Tensor:
-        center_based_anchor_bboxes = []
+    def generate_anchors(self, image_width: int, image_height: int, num_x_anchors: int, num_y_anchors: int, anchor_size: int) -> Tensor:
+        center_ys = np.linspace(start=0, stop=image_height, num=num_y_anchors + 2)[1:-1]
+        center_xs = np.linspace(start=0, stop=image_width, num=num_x_anchors + 2)[1:-1]
+        ratios = np.array(self._anchor_ratios)
+        ratios = ratios[:, 0] / ratios[:, 1]
+        scales = np.array(self._anchor_scales)
 
-        # NOTE: it's important to let `anchor_y` be the major index of list (i.e., move horizontally and then vertically) for consistency with 2D convolution
-        for anchor_y in np.linspace(start=0, stop=image_height, num=num_y_anchors + 2)[1:-1]:    # remove anchor at vertical boundary
-            for anchor_x in np.linspace(start=0, stop=image_width, num=num_x_anchors + 2)[1:-1]:  # remove anchor at horizontal boundary
-                for ratio in self._anchor_ratios:
-                    for size in self._anchor_sizes:
-                        center_x = float(anchor_x)
-                        center_y = float(anchor_y)
-                        r = ratio[0] / ratio[1]
-                        height = size * np.sqrt(r)
-                        width = size * np.sqrt(1 / r)
-                        center_based_anchor_bboxes.append([center_x, center_y, width, height])
+        # NOTE: it's important to let `center_ys` be the major index (i.e., move horizontally and then vertically) for consistency with 2D convolution
 
-        center_based_anchor_bboxes = torch.tensor(center_based_anchor_bboxes, dtype=torch.float)
+        # giving the string 'ij' returns a meshgrid with matrix indexing, i.e., with shape (#center_ys, #center_xs, #ratios, #scales)
+        center_ys, center_xs, ratios, scales = np.meshgrid(center_ys, center_xs, ratios, scales, indexing='ij')
+
+        center_ys = center_ys.reshape(-1)
+        center_xs = center_xs.reshape(-1)
+        ratios = ratios.reshape(-1)
+        scales = scales.reshape(-1)
+
+        widths = anchor_size * scales * np.sqrt(1 / ratios)
+        heights = anchor_size * scales * np.sqrt(ratios)
+
+        center_based_anchor_bboxes = np.stack((center_xs, center_ys, widths, heights), axis=1)
+        center_based_anchor_bboxes = torch.from_numpy(center_based_anchor_bboxes).float()
         anchor_bboxes = BBox.from_center_base(center_based_anchor_bboxes)
 
         return anchor_bboxes
 
-    def _generate_proposals(self, anchor_bboxes: Tensor, objectnesses: Tensor, transformers: Tensor, image_width: int, image_height: int) -> Tensor:
+    def generate_proposals(self, anchor_bboxes: Tensor, objectnesses: Tensor, transformers: Tensor, image_width: int, image_height: int) -> Tensor:
         proposal_score = objectnesses[:, 1]
         _, sorted_indices = torch.sort(proposal_score, dim=0, descending=True)
 
@@ -133,5 +134,10 @@ class RegionProposalNetwork(nn.Module):
 
         proposal_bboxes = BBox.apply_transformer(sorted_anchor_bboxes, sorted_transformers.detach())
         proposal_bboxes = BBox.clip(proposal_bboxes, 0, 0, image_width, image_height)
+
+        proposal_bboxes = proposal_bboxes[:self._pre_nms_top_n]
+        kept_indices = NMS.suppress(proposal_bboxes, threshold=0.7)
+        proposal_bboxes = proposal_bboxes[kept_indices]
+        proposal_bboxes = proposal_bboxes[:self._post_nms_top_n]
 
         return proposal_bboxes

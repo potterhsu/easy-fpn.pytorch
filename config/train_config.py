@@ -10,7 +10,7 @@ class TrainConfig(Config):
 
     LEARNING_RATE: float = 0.001
     MOMENTUM: float = 0.9
-    WEIGHT_DECAY: float = 0.0005
+    WEIGHT_DECAY: float = 0.0001
     STEP_LR_SIZE: int = 50000
     STEP_LR_GAMMA: float = 0.1
 
@@ -20,12 +20,12 @@ class TrainConfig(Config):
 
     @classmethod
     def setup(cls, image_min_side: float = None, image_max_side: float = None,
-              anchor_ratios: List[Tuple[int, int]] = None, anchor_sizes: List[int] = None, pooling_mode: str = None,
+              anchor_ratios: List[Tuple[int, int]] = None, anchor_scales: List[int] = None, pooling_mode: str = None,
               rpn_pre_nms_top_n: int = None, rpn_post_nms_top_n: int = None,
               learning_rate: float = None, momentum: float = None, weight_decay: float = None,
               step_lr_size: int = None, step_lr_gamma: float = None,
               num_steps_to_display: int = None, num_steps_to_snapshot: int = None, num_steps_to_finish: int = None):
-        super().setup(image_min_side, image_max_side, anchor_ratios, anchor_sizes, pooling_mode)
+        super().setup(image_min_side, image_max_side, anchor_ratios, anchor_scales, pooling_mode)
 
         if rpn_pre_nms_top_n is not None:
             cls.RPN_PRE_NMS_TOP_N = rpn_pre_nms_top_n
