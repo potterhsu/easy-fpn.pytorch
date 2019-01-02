@@ -197,9 +197,9 @@ An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch
             <td>0.001</td>
             <td>0.9</td>
             <td>0.0001</td>
-            <td>900000</td>
+            <td><b>900000</b></td>
             <td>0.1</td>
-            <td>1200000</td>
+            <td><b>1200000</b></td>
         </tr>
         <tr>
             <td>Original Paper</td>
@@ -289,9 +289,9 @@ An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch
             <td>0.001</td>
             <td>0.9</td>
             <td>0.0001</td>
-            <td>900000</td>
+            <td><b>900000</b></td>
             <td>0.1</td>
-            <td>1200000</td>
+            <td><b>1200000</b></td>
         </tr>
     </table>
     
