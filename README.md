@@ -59,7 +59,7 @@ An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch
             <td>GTX 1080 Ti</td>
             <td>~ 3.3</td>
             <td>~ 9.5</td>
-            <td>0.7627 / 0.7604 (60k / 70k)</td>
+            <td>0.7627|0.7604 (60k|70k)</td>
             <td>800</td>
             <td>1333</td>
             <td>[(1, 2), (1, 1), (2, 1)]</td>
