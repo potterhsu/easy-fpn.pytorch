@@ -197,10 +197,10 @@ class Model(nn.Module):
                 picked_indices.append(uk_indices)
 
             pools = torch.cat(pools, dim=0)
-            picked_indices = torch.cat(picked_indices, dim=0)  # A B C => 1 2 0 => B C A
+            picked_indices = torch.cat(picked_indices, dim=0)
 
-            _, sorted_indices = torch.sort(picked_indices)  # 1 2 0 => 2 0 1
-            pools = pools[sorted_indices]  # B C A => 2 0 1 => A B C
+            _, sorted_indices = torch.sort(picked_indices)
+            pools = pools[sorted_indices]
 
             pools = pools.view(pools.shape[0], -1)
             hidden = self._hidden(pools)
