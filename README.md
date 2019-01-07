@@ -482,6 +482,32 @@ An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch
 
 ## Notes
 
+* Illustration for feature pyramid (see `forward` in `model.py`)
+
+    ```python
+    # Bottom-up pathway
+    c1 = self.conv1(image)
+    c2 = self.conv2(c1)
+    c3 = self.conv3(c2)
+    c4 = self.conv4(c3)
+    c5 = self.conv5(c4)
+
+    # Top-down pathway and lateral connections
+    p5 = self.lateral_c5(c5)
+    p4 = self.lateral_c4(c4) + F.interpolate(input=p5, size=(c4.shape[2], c4.shape[3]), mode='nearest')
+    p3 = self.lateral_c3(c3) + F.interpolate(input=p4, size=(c3.shape[2], c3.shape[3]), mode='nearest')
+    p2 = self.lateral_c2(c2) + F.interpolate(input=p3, size=(c2.shape[2], c2.shape[3]), mode='nearest')
+
+    # Reduce the aliasing effect
+    p4 = self.dealiasing_p4(p4)
+    p3 = self.dealiasing_p3(p3)
+    p2 = self.dealiasing_p2(p2)
+
+    p6 = F.max_pool2d(input=p5, kernel_size=2)
+    ```
+
+    ![](images/feature-pyramid.png)
+
 * Illustration for "find labels for each `anchor_bboxes`" in `region_proposal_network.py`
 
     ![](images/rpn_find_labels_1.png)
