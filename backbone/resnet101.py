@@ -15,16 +15,16 @@ class ResNet101(Base):
         resnet101 = torchvision.models.resnet101(pretrained=self._pretrained)
 
         # list(resnet101.children()) consists of following modules
-        #   [0] = Conv2d, [1] = BatchNorm2d, [2] = ReLU, [3] = MaxPool2d,
-        #   [4] = Sequential(Bottleneck...),
+        #   [0] = Conv2d, [1] = BatchNorm2d, [2] = ReLU,
+        #   [3] = MaxPool2d, [4] = Sequential(Bottleneck...),
         #   [5] = Sequential(Bottleneck...),
         #   [6] = Sequential(Bottleneck...),
         #   [7] = Sequential(Bottleneck...),
         #   [8] = AvgPool2d, [9] = Linear
         children = list(resnet101.children())
 
-        conv1 = nn.Sequential(*children[:4])
-        conv2 = children[4]
+        conv1 = nn.Sequential(*children[:3])
+        conv2 = nn.Sequential(*([children[3]] + list(children[4].children())))
         conv3 = children[5]
         conv4 = children[6]
         conv5 = children[7]
