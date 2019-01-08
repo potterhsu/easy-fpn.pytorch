@@ -110,75 +110,6 @@ An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch
             <th>num_steps_to_finish</th>
         </tr>
         <tr>
-            <td>Original Paper</td>
-            <td>ResNet-50</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>0.339</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td>facebookresearch/Detectron</td>
-            <td>ResNet-50</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>0.379</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td>open-mmlab/mmdetection</td>
-            <td>ResNet-50</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>0.377</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-        </tr>
-        <tr>
             <td> Ours </td>
             <td>ResNet-50</td>
             <td>GTX 1080 Ti</td>
@@ -208,52 +139,6 @@ An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch
             <td>-</td>
             <td>-</td>
             <td>0.362</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td>facebookresearch/Detectron</td>
-            <td>ResNet-101</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>0.398</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td>open-mmlab/mmdetection</td>
-            <td>ResNet-101</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>0.394</td>
             <td>-</td>
             <td>-</td>
             <td>-</td>
