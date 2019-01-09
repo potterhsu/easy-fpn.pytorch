@@ -14,7 +14,7 @@ class Base(torch.utils.data.dataset.Dataset):
         TRAIN = 'train'
         EVAL = 'eval'
 
-    OPTIONS = ['voc2007', 'voc2007-cat-dog', 'coco2017']
+    OPTIONS = ['voc2007', 'coco2017', 'voc2007-cat-dog']
 
     @staticmethod
     def from_name(name: str) -> Type['Base']:
