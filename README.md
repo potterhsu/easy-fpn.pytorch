@@ -38,10 +38,10 @@ An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch
             <th>anchor_ratios</th>
             <th>anchor_scales</th>
             <th>pooling_mode</th>
-            <th>train_pre_rpn_nms_top_n</th>
-            <th>train_post_rpn_nms_top_n</th>
-            <th>eval_pre_rpn_nms_top_n</th>
-            <th>eval_post_rpn_nms_top_n</th>
+            <th>rpn_pre_nms_top_n (train)</th>
+            <th>rpn_post_nms_top_n (train)</th>
+            <th>rpn_pre_nms_top_n (eval)</th>
+            <th>rpn_post_nms_top_n (eval)</th>
             <th>learning_rate</th>
             <th>momentum</th>
             <th>weight_decay</th>
@@ -98,10 +98,10 @@ An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch
             <th>anchor_ratios</th>
             <th>anchor_scales</th>
             <th>pooling_mode</th>
-            <th>train_pre_rpn_nms_top_n</th>
-            <th>train_post_rpn_nms_top_n</th>
-            <th>eval_pre_rpn_nms_top_n</th>
-            <th>eval_post_rpn_nms_top_n</th>
+            <th>rpn_pre_nms_top_n (train)</th>
+            <th>rpn_post_nms_top_n (train)</th>
+            <th>rpn_pre_nms_top_n (eval)</th>
+            <th>rpn_post_nms_top_n (eval)</th>
             <th>learning_rate</th>
             <th>momentum</th>
             <th>weight_decay</th>
