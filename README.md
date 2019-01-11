@@ -181,7 +181,22 @@ An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch
     </table>
     
     > Scroll to right for more configurations
-    
+
+* PASCAL VOC 2007 Cat Dog
+
+    * Train: 2007 trainval drops categories other than cat and dog (750 images)
+    * Eval: 2007 test drops categories other than cat and dog (728 images)
+
+* MS COCO 2017 Person
+
+    * Train: 2017 Train drops categories other than person (64115 images)
+    * Eval: 2017 Val drops categories other than person (2693 images)
+
+* MS COCO 2017 Car
+
+    * Train: 2017 Train drops categories other than car (12251 images)
+    * Eval: 2017 Val drops categories other than car (535 images)
+
 
 ## Requirements
 

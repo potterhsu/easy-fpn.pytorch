@@ -7,7 +7,7 @@ from typing import Optional
 
 from tensorboardX import SummaryWriter
 from torch import optim
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import MultiStepLR
 from torch.utils.data import DataLoader
 
 from backbone.base import Base as BackboneBase
@@ -30,7 +30,7 @@ def _train(dataset_name: str, backbone_name: str, path_to_data_dir: str, path_to
                   rpn_pre_nms_top_n=Config.RPN_PRE_NMS_TOP_N, rpn_post_nms_top_n=Config.RPN_POST_NMS_TOP_N).cuda()
     optimizer = optim.SGD(model.parameters(), lr=Config.LEARNING_RATE,
                           momentum=Config.MOMENTUM, weight_decay=Config.WEIGHT_DECAY)
-    scheduler = StepLR(optimizer, step_size=Config.STEP_LR_SIZE, gamma=Config.STEP_LR_GAMMA)
+    scheduler = MultiStepLR(optimizer, milestones=Config.STEP_LR_SIZES, gamma=Config.STEP_LR_GAMMA)
 
     step = 0
     time_checkpoint = time.time()
@@ -83,7 +83,7 @@ def _train(dataset_name: str, backbone_name: str, path_to_data_dir: str, path_to
                 steps_per_sec = num_steps_to_display / elapsed_time
                 avg_loss = sum(losses) / len(losses)
                 lr = scheduler.get_lr()[0]
-                Log.i(f'[Step {step}] Avg. Loss = {avg_loss:.6f}, Learning Rate = {lr} ({steps_per_sec:.2f} steps/sec)')
+                Log.i(f'[Step {step}] Avg. Loss = {avg_loss:.6f}, Learning Rate = {lr:.6f} ({steps_per_sec:.2f} steps/sec)')
 
             if step % num_steps_to_snapshot == 0 or should_stop:
                 path_to_checkpoint = model.save(path_to_checkpoints_dir, step, optimizer, scheduler)
@@ -113,7 +113,7 @@ if __name__ == '__main__':
         parser.add_argument('--learning_rate', type=float, help='default: {:g}'.format(Config.LEARNING_RATE))
         parser.add_argument('--momentum', type=float, help='default: {:g}'.format(Config.MOMENTUM))
         parser.add_argument('--weight_decay', type=float, help='default: {:g}'.format(Config.WEIGHT_DECAY))
-        parser.add_argument('--step_lr_size', type=int, help='default: {:d}'.format(Config.STEP_LR_SIZE))
+        parser.add_argument('--step_lr_sizes', type=str, help='default: {!s}'.format(Config.STEP_LR_SIZES))
         parser.add_argument('--step_lr_gamma', type=float, help='default: {:g}'.format(Config.STEP_LR_GAMMA))
         parser.add_argument('--num_steps_to_display', type=int, help='default: {:d}'.format(Config.NUM_STEPS_TO_DISPLAY))
         parser.add_argument('--num_steps_to_snapshot', type=int, help='default: {:d}'.format(Config.NUM_STEPS_TO_SNAPSHOT))
@@ -134,7 +134,7 @@ if __name__ == '__main__':
                      anchor_ratios=args.anchor_ratios, anchor_scales=args.anchor_scales, pooling_mode=args.pooling_mode,
                      rpn_pre_nms_top_n=args.rpn_pre_nms_top_n, rpn_post_nms_top_n=args.rpn_post_nms_top_n,
                      learning_rate=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay,
-                     step_lr_size=args.step_lr_size, step_lr_gamma=args.step_lr_gamma,
+                     step_lr_sizes=args.step_lr_sizes, step_lr_gamma=args.step_lr_gamma,
                      num_steps_to_display=args.num_steps_to_display, num_steps_to_snapshot=args.num_steps_to_snapshot, num_steps_to_finish=args.num_steps_to_finish)
 
         Log.initialize(os.path.join(path_to_checkpoints_dir, 'train.log'))

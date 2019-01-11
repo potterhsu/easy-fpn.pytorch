@@ -1,29 +1,31 @@
 from typing import List, Tuple
 
+import ast
+
 from config.config import Config
 
 
 class TrainConfig(Config):
 
-    RPN_PRE_NMS_TOP_N: int = 12000
+    RPN_PRE_NMS_TOP_N: int = 12000 // 5  # for each level
     RPN_POST_NMS_TOP_N: int = 2000
 
     LEARNING_RATE: float = 0.001
     MOMENTUM: float = 0.9
     WEIGHT_DECAY: float = 0.0001
-    STEP_LR_SIZE: int = 50000
+    STEP_LR_SIZES: List[int] = [50000, 70000]
     STEP_LR_GAMMA: float = 0.1
 
     NUM_STEPS_TO_DISPLAY: int = 20
     NUM_STEPS_TO_SNAPSHOT: int = 10000
-    NUM_STEPS_TO_FINISH: int = 70000
+    NUM_STEPS_TO_FINISH: int = 80000
 
     @classmethod
     def setup(cls, image_min_side: float = None, image_max_side: float = None,
               anchor_ratios: List[Tuple[int, int]] = None, anchor_scales: List[int] = None, pooling_mode: str = None,
               rpn_pre_nms_top_n: int = None, rpn_post_nms_top_n: int = None,
               learning_rate: float = None, momentum: float = None, weight_decay: float = None,
-              step_lr_size: int = None, step_lr_gamma: float = None,
+              step_lr_sizes: List[int] = None, step_lr_gamma: float = None,
               num_steps_to_display: int = None, num_steps_to_snapshot: int = None, num_steps_to_finish: int = None):
         super().setup(image_min_side, image_max_side, anchor_ratios, anchor_scales, pooling_mode)
 
@@ -38,8 +40,8 @@ class TrainConfig(Config):
             cls.MOMENTUM = momentum
         if weight_decay is not None:
             cls.WEIGHT_DECAY = weight_decay
-        if step_lr_size is not None:
-            cls.STEP_LR_SIZE = step_lr_size
+        if step_lr_sizes is not None:
+            cls.STEP_LR_SIZES = ast.literal_eval(step_lr_sizes)
         if step_lr_gamma is not None:
             cls.STEP_LR_GAMMA = step_lr_gamma
 

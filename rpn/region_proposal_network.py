@@ -32,16 +32,14 @@ class RegionProposalNetwork(nn.Module):
         self._objectness = nn.Conv2d(in_channels=512, out_channels=num_anchors * 2, kernel_size=1)
         self._transformer = nn.Conv2d(in_channels=512, out_channels=num_anchors * 4, kernel_size=1)
 
-    def forward(self, p2: Tensor, p3: Tensor, p4: Tensor, p5: Tensor, p6: Tensor, image_width: int, image_height: int) -> Tuple[Tensor, Tensor]:
-        objectnesses, transformers = [], []
+    def forward(self, features: Tensor, image_width: int, image_height: int) -> Tuple[Tensor, Tensor]:
+        features = self._features(features)
+        objectnesses = self._objectness(features)
+        transformers = self._transformer(features)
 
-        for p in [p2, p3, p4, p5, p6]:
-            features = self._features(p)
-            objectnesses.append(self._objectness(features).permute(0, 2, 3, 1).contiguous().view(-1, 2))
-            transformers.append(self._transformer(features).permute(0, 2, 3, 1).contiguous().view(-1, 4))
+        objectnesses = objectnesses.permute(0, 2, 3, 1).contiguous().view(-1, 2)
+        transformers = transformers.permute(0, 2, 3, 1).contiguous().view(-1, 4)
 
-        objectnesses = torch.cat(objectnesses, dim=0)
-        transformers = torch.cat(transformers, dim=0)
         return objectnesses, transformers
 
     def sample(self, anchor_bboxes: Tensor, gt_bboxes: Tensor, image_width: int, image_height: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:

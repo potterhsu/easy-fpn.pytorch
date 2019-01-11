@@ -92,18 +92,31 @@ class Model(nn.Module):
         p3 = self.dealiasing_p3(p3)
         p2 = self.dealiasing_p2(p2)
 
-        p6 = F.max_pool2d(input=p5, kernel_size=2)
+        p6 = F.max_pool2d(input=p5, kernel_size=1, stride=2)
 
-        anchor_objectnesses, anchor_transformers = self.rpn.forward(p2, p3, p4, p5, p6, image_width, image_height)
+        # NOTE: We define the anchors to have areas of {32^2, 64^2, 128^2, 256^2, 512^2} pixels on {P2, P3, P4, P5, P6} respectively
 
-        # we define the anchors to have areas of {32^2, 64^2, 128^2, 256^2, 512^2} pixels on {P2, P3, P4, P5, P6} respectively
+        anchor_objectnesses = []
+        anchor_transformers = []
         anchor_bboxes = []
+        proposal_bboxes = []
+
         for p, anchor_size in zip([p2, p3, p4, p5, p6], [32, 64, 128, 256, 512]):
-            anchor_bboxes.append(self.rpn.generate_anchors(image_width, image_height,
-                                                           num_x_anchors=p.shape[3], num_y_anchors=p.shape[2],
-                                                           anchor_size=anchor_size).cuda())
+            p_anchor_objectnesses, p_anchor_transformers = self.rpn.forward(features=p, image_width=image_width, image_height=image_height)
+            p_anchor_bboxes = self.rpn.generate_anchors(image_width, image_height,
+                                                        num_x_anchors=p.shape[3], num_y_anchors=p.shape[2],
+                                                        anchor_size=anchor_size).cuda()
+            p_proposal_bboxes = self.rpn.generate_proposals(p_anchor_bboxes, p_anchor_objectnesses, p_anchor_transformers,
+                                                            image_width, image_height)
+            anchor_objectnesses.append(p_anchor_objectnesses)
+            anchor_transformers.append(p_anchor_transformers)
+            anchor_bboxes.append(p_anchor_bboxes)
+            proposal_bboxes.append(p_proposal_bboxes)
+
+        anchor_objectnesses = torch.cat(anchor_objectnesses, dim=0)
+        anchor_transformers = torch.cat(anchor_transformers, dim=0)
         anchor_bboxes = torch.cat(anchor_bboxes, dim=0)
-        proposal_bboxes = self.rpn.generate_proposals(anchor_bboxes, anchor_objectnesses, anchor_transformers, image_width, image_height)
+        proposal_bboxes = torch.cat(proposal_bboxes, dim=0)
 
         if self.training:
             forward_input: Model.ForwardInput.Train
