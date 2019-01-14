@@ -110,29 +110,6 @@ An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch
             <th>num_steps_to_finish</th>
         </tr>
         <tr>
-            <td> Ours </td>
-            <td>ResNet-50</td>
-            <td>GTX 1080 Ti</td>
-            <td>WIP</td>
-            <td>WIP</td>
-            <td>WIP</td>
-            <td>800</td>
-            <td>1333</td>
-            <td>[(1, 2), (1, 1), (2, 1)]</td>
-            <td>[1]</td>
-            <td>align</td>
-            <td>12000</td>
-            <td>2000</td>
-            <td>6000</td>
-            <td>1000</td>
-            <td>0.001</td>
-            <td>0.9</td>
-            <td>0.0001</td>
-            <td><b>900000</b></td>
-            <td>0.1</td>
-            <td><b>1200000</b></td>
-        </tr>
-        <tr>
             <td>Original Paper</td>
             <td>ResNet-101</td>
             <td>-</td>
@@ -156,12 +133,16 @@ An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch
             <td>-</td>
         </tr>
         <tr>
-            <td> Ours </td>
+            <td>
+                <a href="https://drive.google.com/open?id=1KWThl86AGraRROh2J5TqeXxAUyE-OIwa">
+                    Ours
+                </a>
+            </td>
             <td>ResNet-101</td>
             <td>GTX 1080 Ti</td>
-            <td>WIP</td>
-            <td>WIP</td>
-            <td>WIP</td>
+            <td>~ 3.3</td>
+            <td>~ 9.5</td>
+            <td>0.3628</td>
             <td>800</td>
             <td>1333</td>
             <td>[(1, 2), (1, 1), (2, 1)]</td>
@@ -176,12 +157,27 @@ An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch
             <td>0.0001</td>
             <td><b>900000</b></td>
             <td>0.1</td>
-            <td><b>1200000</b></td>
+            <td><b>1640000</b></td>
         </tr>
     </table>
     
     > Scroll to right for more configurations
-    
+
+* PASCAL VOC 2007 Cat Dog
+
+    * Train: 2007 trainval drops categories other than cat and dog (750 images)
+    * Eval: 2007 test drops categories other than cat and dog (728 images)
+
+* MS COCO 2017 Person
+
+    * Train: 2017 Train drops categories other than person (64115 images)
+    * Eval: 2017 Val drops categories other than person (2693 images)
+
+* MS COCO 2017 Car
+
+    * Train: 2017 Train drops categories other than car (12251 images)
+    * Eval: 2017 Val drops categories other than car (535 images)
+
 
 ## Requirements
 
