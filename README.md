@@ -178,6 +178,11 @@ An easy implementation of [FPN](https://arxiv.org/pdf/1612.03144.pdf) in PyTorch
     * Train: 2017 Train drops categories other than car (12251 images)
     * Eval: 2017 Val drops categories other than car (535 images)
 
+* MS COCO 2017 Animal
+
+    * Train: 2017 Train drops categories other than bird, cat, dog, horse, sheep, cow, elephant, bear, zebra and giraffe (23989 images)
+    * Eval: 2017 Val drops categories other than bird, cat, dog, horse, sheep, cow, elephant, bear, zebra and giraffe (1016 images)
+
 
 ## Requirements
 
