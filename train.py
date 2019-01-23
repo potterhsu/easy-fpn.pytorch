@@ -85,7 +85,7 @@ def _train(dataset_name: str, backbone_name: str, path_to_data_dir: str, path_to
                 eta = (num_steps_to_finish - step) / steps_per_sec / 3600
                 avg_loss = sum(losses) / len(losses)
                 lr = scheduler.get_lr()[0]
-                Log.i(f'[Step {step}] Avg. Loss = {avg_loss:.6f}, Learning Rate = {lr:.6f} ({samples_per_sec:.2f} steps/sec; ETA {eta:.1f} hrs)')
+                Log.i(f'[Step {step}] Avg. Loss = {avg_loss:.6f}, Learning Rate = {lr:.6f} ({samples_per_sec:.2f} samples/sec; ETA {eta:.1f} hrs)')
 
             if step % num_steps_to_snapshot == 0 or should_stop:
                 path_to_checkpoint = model.save(path_to_checkpoints_dir, step, optimizer, scheduler)
